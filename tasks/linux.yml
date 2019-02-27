@@ -11,13 +11,16 @@
   when: ansible_hostname != fqdn
 
 - name: Build hosts file (backups will be made)
+  with_items:
+    - "{{ ip_address }}"
+    - 127.0.1.1
   lineinfile:
     dest: /etc/hosts
-    regexp: "^{{ ip_address }}"
-    line: "{{ ip_address }} {{ fqdn }} {{ hostname }}"
+    regexp: '^{{ item }}\s'
+    line: "{{ item }} {{ fqdn }} {{ hostname }}"
     state: present
     backup: yes
-  when: ip_address is defined
+  when: item is defined
   notify:
     - restart hostname
     - restart systemd-logind
